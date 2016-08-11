@@ -1,0 +1,44 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="example.expense.user.app">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <!-- 로그인 -->
+        <activity
+            android:name=".login.UserLogin"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="stateAlwaysVisible">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- 신청 경비 목록 (메인) -->
+        <activity android:name=".ExpenseList"
+            android:theme="@style/AppTheme">
+
+        </activity>
+
+        <!-- 경비신청하기 -->
+        <activity android:name=".expense.NewExpense"
+            android:theme="@style/AppTheme">
+
+        </activity>
+
+        <!-- 경비상세보기 -->
+        <activity android:name=".expense.ViewExpense"
+            android:theme="@style/AppTheme">
+
+        </activity>
+    </application>
+
+</manifest>

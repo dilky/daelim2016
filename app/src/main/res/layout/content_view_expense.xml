@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <!-- title bar -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            layout="@layout/toolbar_layout"/>
+    </FrameLayout>
+
+    <ScrollView
+        android:fillViewport="true"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:padding="16dp"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <!-- 상태 -->
+            <TextView
+                style="@style/view_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/text_status"/>
+            <TextView
+                style="@style/view_content"
+                android:id="@+id/tv_Status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <!-- 사용처 -->
+            <TextView
+                style="@style/view_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/text_payment_store_name"/>
+            <TextView
+                style="@style/view_content"
+                android:id="@+id/tv_PaymentStoreName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <!-- 사용금액 -->
+            <TextView
+                style="@style/view_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/text_payment_amount"/>
+            <TextView
+                style="@style/view_content"
+                android:id="@+id/tv_PaymentAmount"
+                android:gravity="right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <!-- 사용일자 -->
+            <TextView
+                style="@style/view_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/text_payment_date"/>
+            <TextView
+                style="@style/view_content"
+                android:id="@+id/tv_PaymentDate"
+                android:gravity="right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <!-- 적요(메모) -->
+            <TextView
+                style="@style/view_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/text_summary"/>
+            <TextView
+                style="@style/view_content"
+                android:id="@+id/tv_Summary"
+                android:gravity="right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <!-- 계정 -->
+            <TextView
+                style="@style/view_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/text_account_title"/>
+            <TextView
+                style="@style/view_content"
+                android:id="@+id/tv_AccountTitle"
+                android:gravity="right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <!-- 영수증 사진 -->
+            <ImageView
+                android:id="@+id/iv_ReceiptPhoto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

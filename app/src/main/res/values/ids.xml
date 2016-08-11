@@ -1,0 +1,10 @@
+<resources>
+
+    <!--
+        Generate an id which can be used when the location menu item is added in MainActivity
+    -->
+    <item name="tag_year" type="id"/>
+    <item name="tag_month" type="id"/>
+    <item name="tag_day" type="id"/>
+
+</resources>

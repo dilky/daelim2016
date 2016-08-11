@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error_msg_default_with_activity">예기지 않은 오류가 발생하였습니다.</string>
+    <string name="error_msg_required_values_are_missing">필수값이 누락되었습니다.</string>
+</resources>

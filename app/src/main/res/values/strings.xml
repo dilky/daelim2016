@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">ExpenseUserApp</string>
+
+    <!-- 공통패키지 텍스트 -->
+    <string name="common_text_confirm">확인</string>
+    <string name="common_text_error">오류</string>
+
+    <!-- 텍스트 -->
+    <string name="text_login">로그인</string>
+    <string name="text_id">아이디</string>
+    <string name="text_password">비밀번호</string>
+    <string name="text_payment_store_name">사용처</string>
+    <string name="text_payment_amount">사용금액</string>
+    <string name="text_payment_date">사용일자</string>
+    <string name="text_summary">적요(메모)</string>
+    <string name="text_account_title">계정</string>
+    <string name="text_receipt">영수증</string>
+    <string name="text_new_expense">경비신청</string>
+    <string name="text_detail_view">상세보기</string>
+    <string name="text_status">상태</string>
+</resources>
