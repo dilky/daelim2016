@@ -4,23 +4,10 @@
     android:layout_height="match_parent">
 
     <!-- title bar -->
-    <FrameLayout
+    <include
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <include
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            layout="@layout/toolbar_layout"/>
-        <ImageView
-            android:onClick="toolbarRightButtonClick"
-            android:clickable="true"
-            android:id="@+id/iv_RightButton"
-            android:src="@android:drawable/ic_menu_add"
-            android:padding="10dp"
-            android:layout_gravity="right|center_vertical"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-    </FrameLayout>
+        android:layout_height="wrap_content"
+        layout="@layout/toolbar_layout"/>
 
     <!-- listview -->
     <ListView
