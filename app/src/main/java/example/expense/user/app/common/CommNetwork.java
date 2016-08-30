@@ -1,29 +1,21 @@
+
 package example.expense.user.app.common;
 
 import android.app.Activity;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
 
 import example.expense.user.app.BuildConfig;
 import example.expense.user.app.common.listener.onNetworkResponseListener;
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.FormBody;
 import okhttp3.Headers;
-import okhttp3.HttpUrl;
-import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
@@ -49,11 +41,11 @@ public class CommNetwork {
 
     private Activity activity;
     private onNetworkResponseListener listener;
+
     public CommNetwork(@NonNull Activity atvt, @NonNull onNetworkResponseListener i) {
         activity = atvt;
         listener = i;
     }
-
 
 
     public void requestToServer(String api_key, JSONObject requestObject) throws Exception {
@@ -81,10 +73,15 @@ public class CommNetwork {
             @Override
             public void onFailure(Call call, final IOException e) {
 
-                if (listener != null) {
-                    listener.onFailure(apiKey, "T999", e.getMessage());
-                }
-                e.printStackTrace();
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (listener != null) {
+                            listener.onFailure(apiKey, "T999", e.getMessage());
+                        }
+                        e.printStackTrace();
+                    }
+                });
             }
 
             @Override
@@ -140,5 +137,3 @@ public class CommNetwork {
     }
 
 }
-
-

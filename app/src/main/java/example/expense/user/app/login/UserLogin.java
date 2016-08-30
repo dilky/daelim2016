@@ -12,6 +12,7 @@ import android.widget.EditText;
 import example.expense.user.app.ExpenseList;
 import example.expense.user.app.R;
 import example.expense.user.app.common.ErrorUtils;
+import example.expense.user.app.common.SharedPref;
 
 /**
  * Created by dilky on 2016-07-20.
@@ -27,6 +28,14 @@ public class UserLogin extends AppCompatActivity {
             setContentView(R.layout.content_login);
 
             addToolBar();
+
+            if (!TextUtils.isEmpty(SharedPref.getUserId(this)) && !TextUtils.isEmpty(SharedPref.getPwd(this))) {
+                // TODO : 로그인 API 호출
+                Intent intent = new Intent(this, ExpenseList.class);
+                startActivity(intent);
+                finish();
+                return;
+            }
 
             etUserId = (EditText) findViewById(R.id.et_UserId);
             etPwd = (EditText) findViewById(R.id.et_Pwd);
@@ -50,6 +59,9 @@ public class UserLogin extends AppCompatActivity {
                     || TextUtils.isEmpty(etPwd.getText())) {
                 return;
             }
+
+            SharedPref.putUserId(this, etUserId.getText().toString());
+            SharedPref.putPwd(this, etPwd.getText().toString());
 
             // TODO : ID, PWD 검증한다.
             Intent intent = new Intent(this, ExpenseList.class);
