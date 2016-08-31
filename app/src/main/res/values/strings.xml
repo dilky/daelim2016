@@ -16,6 +16,7 @@
     <string name="text_account_title">계정</string>
     <string name="text_receipt">영수증</string>
     <string name="text_new_expense">경비신청</string>
+    <string name="text_update_expense">경비수정</string>
     <string name="text_detail_view">상세보기</string>
     <string name="text_status">상태</string>
 </resources>

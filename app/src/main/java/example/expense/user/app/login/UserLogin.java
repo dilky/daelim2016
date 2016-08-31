@@ -9,10 +9,14 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 
+import org.json.JSONObject;
+
 import example.expense.user.app.ExpenseList;
 import example.expense.user.app.R;
+import example.expense.user.app.common.CommNetwork;
 import example.expense.user.app.common.ErrorUtils;
 import example.expense.user.app.common.SharedPref;
+import example.expense.user.app.common.listener.onNetworkResponseListener;
 
 /**
  * Created by dilky on 2016-07-20.
@@ -60,13 +64,27 @@ public class UserLogin extends AppCompatActivity {
                 return;
             }
 
-            SharedPref.putUserId(this, etUserId.getText().toString());
-            SharedPref.putPwd(this, etPwd.getText().toString());
+            CommNetwork commNetwork = new CommNetwork(this, new onNetworkResponseListener() {
+                @Override
+                public void onSuccess(String api_key, JSONObject response) {
 
-            // TODO : ID, PWD 검증한다.
-            Intent intent = new Intent(this, ExpenseList.class);
-            startActivity(intent);
-            finish();
+                    SharedPref.putUserId(UserLogin.this, etUserId.getText().toString());
+                    SharedPref.putPwd(UserLogin.this, etPwd.getText().toString());
+
+                    Intent intent = new Intent(UserLogin.this, ExpenseList.class);
+                    startActivity(intent);
+                    finish();
+                }
+
+                @Override
+                public void onFailure(String api_key, String error_cd, String error_msg) {
+                    ErrorUtils.Alert( UserLogin.this, String.format("[%s] %s", error_cd,  error_msg) );
+                }
+            });
+            JSONObject req_data = new JSONObject();
+            req_data.put("USER_ID", etUserId.getText().toString());
+            req_data.put("PWD", etPwd.getText().toString());
+            commNetwork.requestToServer("LOGIN_R001", req_data);
 
         } catch (Exception e) {
             ErrorUtils.AlertException(this, getString(R.string.error_msg_default_with_activity), e);

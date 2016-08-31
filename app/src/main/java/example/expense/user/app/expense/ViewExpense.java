@@ -1,5 +1,6 @@
 package example.expense.user.app.expense;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -28,6 +29,8 @@ import example.expense.user.app.common.listener.onNetworkResponseListener;
  */
 public class ViewExpense extends AppCompatActivity implements onNetworkResponseListener {
 
+    private JSONObject responseObject;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,13 +47,8 @@ public class ViewExpense extends AppCompatActivity implements onNetworkResponseL
                 return;
             }
 
-            String expenseSeq = getIntent().getStringExtra("EXPENSE_SEQ");
-            JSONObject req_data = new JSONObject();
-            req_data.put("USER_ID", "test_user1");
-            req_data.put("EXPENSE_SEQ", expenseSeq);
+            refreshContents();
 
-            CommNetwork network = new CommNetwork(this, this);
-            network.requestToServer("EXPENSE_R001", req_data);
 
         } catch (Exception e) {
             ErrorUtils.AlertException(this, getString(R.string.error_msg_default_with_activity), e);
@@ -82,8 +80,9 @@ public class ViewExpense extends AppCompatActivity implements onNetworkResponseL
                     finish();
                     break;
                 case R.id.menu_modify:
-                    Toast.makeText(getApplicationContext(), "수정 메뉴 클릭",
-                            Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(this, UpdateExpense.class);
+                    intent.putExtra("json_data", responseObject.toString() );
+                    startActivityForResult(intent, 1000);
                     return true;
                 case R.id.menu_delete:
 
@@ -102,6 +101,16 @@ public class ViewExpense extends AppCompatActivity implements onNetworkResponseL
         return super.onOptionsItemSelected(item);
     }
 
+    private void refreshContents() throws Exception {
+        String expenseSeq = getIntent().getStringExtra("EXPENSE_SEQ");
+        JSONObject req_data = new JSONObject();
+        req_data.put("USER_ID", "test_user1");
+        req_data.put("EXPENSE_SEQ", expenseSeq);
+
+        CommNetwork network = new CommNetwork(this, this);
+        network.requestToServer("EXPENSE_R001", req_data);
+    }
+
     @Override
     public void onSuccess(String api_key, JSONObject response) {
         try {
@@ -114,12 +123,13 @@ public class ViewExpense extends AppCompatActivity implements onNetworkResponseL
                 TextView tvSummary = (TextView) findViewById(R.id.tv_Summary);
                 TextView tvAccountTitle = (TextView) findViewById(R.id.tv_AccountTitle);
 
-                tvStatus.setText(response.getString("ADMISSION_STATUS_NM"));
-                tvPaymentStoreName.setText(response.getString("PAYMENT_STORE_NM"));
-                tvPaymentAmount.setText(response.getString("PAYMENT_AMT"));
-                tvPaymentDate.setText(response.getString("PAYMENT_DTTM"));
-                tvSummary.setText(response.getString("SUMMARY"));
-                tvAccountTitle.setText(response.getString("ACCOUNT_TTL_NM"));
+                responseObject = response;
+                tvStatus.setText(responseObject.getString("ADMISSION_STATUS_NM"));
+                tvPaymentStoreName.setText(responseObject.getString("PAYMENT_STORE_NM"));
+                tvPaymentAmount.setText(responseObject.getString("PAYMENT_AMT"));
+                tvPaymentDate.setText(responseObject.getString("PAYMENT_DTTM"));
+                tvSummary.setText(responseObject.getString("SUMMARY"));
+                tvAccountTitle.setText(responseObject.getString("ACCOUNT_TTL_NM"));
             } else if ("EXPENSE_D001".equals(api_key)) {
                 if( "1".equals(response.getString("DELETE_RSLT"))) {
                     finish();
@@ -135,6 +145,20 @@ public class ViewExpense extends AppCompatActivity implements onNetworkResponseL
     @Override
     public void onFailure(String api_key, String error_cd, String error_msg) {
         ErrorUtils.Alert(this, String.format("[%s:%s]\n%s", api_key, error_cd, error_msg));
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        try {
+            if (requestCode == 1000) {
+                if (resultCode == RESULT_OK) {
+                    // 새로고침한다.
+                    refreshContents();
+                }
+            }
+        } catch ( Exception e ) {
+            ErrorUtils.AlertException(this, getString(R.string.error_msg_default_with_activity), e);
+        }
     }
 
 }

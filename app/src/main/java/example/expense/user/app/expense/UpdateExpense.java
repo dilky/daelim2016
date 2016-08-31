@@ -1,12 +1,8 @@
 package example.expense.user.app.expense;
 
-import android.app.DatePickerDialog;
-import android.app.Dialog;
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -14,7 +10,6 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -22,7 +17,7 @@ import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.Calendar;
+import java.util.ArrayList;
 
 import example.expense.user.app.R;
 import example.expense.user.app.common.AccountTitleSpinnerList;
@@ -32,50 +27,85 @@ import example.expense.user.app.common.ErrorUtils;
 import example.expense.user.app.common.listener.onNetworkResponseListener;
 
 /**
- * Created by dilky on 2016-07-20.
- * 신청하기 화면
+ * Created by dilky on 2016-08-31.
  */
-public class NewExpense extends AppCompatActivity implements onNetworkResponseListener {
-    public static EditText etPaymentDate;
+public class UpdateExpense extends AppCompatActivity implements onNetworkResponseListener {
+
+    private EditText etPaymentStoreName;    // 지급처
+    private EditText etPaymentAmount;       // 지급액
+    private EditText etPaymentDate;         // 지급일자
+    private EditText etSummary;             // 적요(메모)
     private Spinner spnAccountTitle;
-    AccountTitleSpinnerList spinnerList;
+    private AccountTitleSpinnerList spinnerList;
+    private JSONObject viewJsonObject;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         try {
-
             setContentView(R.layout.content_new_expense);
 
             addToolBar();
 
-            etPaymentDate = (EditText) findViewById(R.id.et_PaymentDate);
+            initializeView();
 
-            // 어제 날짜로 초기화
-            final Calendar c = Calendar.getInstance();
-            c.add(Calendar.DAY_OF_MONTH, -1);
-            int year = c.get(Calendar.YEAR);
-            int month = c.get(Calendar.MONTH);
-            int day = c.get(Calendar.DAY_OF_MONTH);
-            etPaymentDate.setTag(R.id.tag_year, year);
-            etPaymentDate.setTag(R.id.tag_month, month);
-            etPaymentDate.setTag(R.id.tag_day, day);
-            etPaymentDate.setText(String.format("%04d년 %2d월 %2d일", year, month + 1, day));
-
-            // 클릭시 데이트피커 보여주기
-            etPaymentDate.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    showDatePickerDialog(v);
-                }
-            });
-
-            // 계정코드 조회
-            spnAccountTitle = (Spinner)findViewById(R.id.spn_AccountTitle);
-            getAccounttitleCodes();
         } catch (Exception e) {
             ErrorUtils.AlertException(this, getString(R.string.error_msg_default_with_activity), e);
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
+            case android.R.id.home:
+                finish();
+        }
+        return (super.onOptionsItemSelected(menuItem));
+    }
+
+    private void initializeView() throws Exception {
+
+        etPaymentStoreName = (EditText) findViewById(R.id.et_PaymentStoreName);
+        etPaymentAmount = (EditText) findViewById(R.id.et_PaymentAmount);
+        etPaymentDate = (EditText) findViewById(R.id.et_PaymentDate);
+        etSummary = (EditText) findViewById(R.id.et_Summary);
+
+        if ( !getIntent().hasExtra("json_data") || TextUtils.isEmpty(getIntent().getStringExtra("json_data"))) {
+            Toast.makeText(this, "수정할 수 없습니다. 데이터를 확인하세요", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+
+        viewJsonObject = new JSONObject(getIntent().getStringExtra("json_data"));
+
+        etPaymentStoreName.setText(viewJsonObject.getString("PAYMENT_STORE_NM"));
+        etPaymentAmount.setText(viewJsonObject.getString("PAYMENT_AMT"));
+        etSummary.setText(viewJsonObject.getString("SUMMARY"));
+        setPaymentDate(viewJsonObject.getString("PAYMENT_DTTM"), etPaymentDate);
+
+        // 클릭시 데이트피커 보여주기
+        etPaymentDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDatePickerDialog(v);
+            }
+        });
+
+        // 계정코드 조회
+        spnAccountTitle = (Spinner)findViewById(R.id.spn_AccountTitle);
+        getAccounttitleCodes();
+    }
+
+    private void setPaymentDate(String date, EditText editText) {
+        int year = Integer.parseInt(date.substring(0, 4));
+        int month = Integer.parseInt( date.substring(4, 6)) - 1;
+        int day =  Integer.parseInt(date.substring(6, 8));
+
+        editText.setTag(R.id.tag_year, year);
+        editText.setTag(R.id.tag_month,  month);
+        editText.setTag(R.id.tag_day, day);
+
+        editText.setText(String.format("%04d년 %2d월 %2d일", year, month + 1, day));
     }
 
     private void getAccounttitleCodes() throws Exception {
@@ -88,29 +118,11 @@ public class NewExpense extends AppCompatActivity implements onNetworkResponseLi
 
     private void addToolBar() throws Exception {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolBar);
-        toolbar.setTitle(R.string.text_new_expense);
+        toolbar.setTitle(R.string.text_update_expense);
         toolbar.setTitleTextColor(Color.WHITE);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem menuItem) {
-        switch (menuItem.getItemId()) {
-            case android.R.id.home:
-                finish();
-        }
-        return (super.onOptionsItemSelected(menuItem));
-    }
-
-    private boolean emptyCheck(EditText editText) {
-        if (TextUtils.isEmpty(editText.getText())) {
-            Toast.makeText(this, getString(R.string.error_msg_required_values_are_missing), Toast.LENGTH_SHORT).show();
-            return true;
-        } else {
-            return false;
-        }
     }
 
     // 등록 버튼 클릭
@@ -120,10 +132,11 @@ public class NewExpense extends AppCompatActivity implements onNetworkResponseLi
             EditText paymentAmount = (EditText) findViewById(R.id.et_PaymentAmount);
             EditText summary = (EditText) findViewById(R.id.et_Summary);
 
-            if ( emptyCheck(paymentStoreNm)
-                    || emptyCheck(paymentAmount)
-                    || emptyCheck(summary)
-                    || emptyCheck(etPaymentDate) ) {
+            if ( TextUtils.isEmpty(paymentStoreNm.getText().toString())
+                    || TextUtils.isEmpty(paymentAmount.getText().toString())
+                    || TextUtils.isEmpty(summary.getText().toString())
+                    || TextUtils.isEmpty(etPaymentDate.getText().toString()) ) {
+                Toast.makeText(this, "필수입력 값이 누락되었습니다.", Toast.LENGTH_LONG).show();
                 return;
             }
 
@@ -135,18 +148,18 @@ public class NewExpense extends AppCompatActivity implements onNetworkResponseLi
             requestObject.put("SUMMARY", summary.getText().toString());
             requestObject.put("ACCOUNT_TTL_CD", spinnerList.getAccountTitleCd(spnAccountTitle.getSelectedItemPosition()));
             requestObject.put("USER_ID", "test_user1");
+            requestObject.put("EXPENSE_SEQ", viewJsonObject.getString("EXPENSE_SEQ"));
 
             Log.d("dilky", requestObject.toString());
 
             CommNetwork network = new CommNetwork(this, this);
-            network.requestToServer("EXPENSE_I001", requestObject);
+            network.requestToServer("EXPENSE_U001", requestObject);
         } catch (Exception e) {
             ErrorUtils.AlertException(this, getString(R.string.error_msg_default_with_activity), e);
         }
     }
 
-    // 사용일자 클릭
-    public void showDatePickerDialog(View v) {
+    private void showDatePickerDialog(View v) {
         DatePickerFragment newFragment = new DatePickerFragment();
         newFragment.setEditText(etPaymentDate);
         newFragment.show(getSupportFragmentManager(), "datePicker");
@@ -161,36 +174,33 @@ public class NewExpense extends AppCompatActivity implements onNetworkResponseLi
                 //
                 JSONArray array = response.getJSONArray("REC");
                 spinnerList = new AccountTitleSpinnerList(array);
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(NewExpense.this, android.R.layout.simple_spinner_item, spinnerList.getArrayList());
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(UpdateExpense.this, android.R.layout.simple_spinner_item, spinnerList.getArrayList());
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 spnAccountTitle.setAdapter(adapter);
-            } else if ("EXPENSE_I001".equals(api_key)) {
-                //
-                // 경비신청
-                //
-                if ( !TextUtils.isEmpty(response.getString("EXPENSE_SEQ") ) ) {
-                    Intent intent = new Intent(NewExpense.this, ViewExpense.class);
-                    intent.putExtra("EXPENSE_SEQ", response.getString("EXPENSE_SEQ"));
-                    startActivity(intent);
-                    finish();
+
+                int position = 0;
+                for(String name : spinnerList.getArrayList()) {
+                    if (name.equals( viewJsonObject.getString("ACCOUNT_TTL_NM"))) {
+                        spnAccountTitle.setSelection(position);
+                        break;
+                    }
+                    position++;
                 }
+
+            } else if ("EXPENSE_U001".equals(api_key)) {
+                //
+                setResult(RESULT_OK);
+                finish();
             }
+
+
         } catch (Exception e) {
-            ErrorUtils.AlertException(this, getString(R.string.error_msg_default_with_activity), e);
+            ErrorUtils.AlertException(UpdateExpense.this, getString(R.string.error_msg_default_with_activity), e);
         }
     }
 
     @Override
     public void onFailure(String api_key, String error_cd, String error_msg) {
-        try {
-            if ("ACCOUNT_L001".equals(api_key)) {
-                Log.d("dilky", String.format("onFailure (error_cd : %s, error_msg: %s)", error_cd, error_msg) );
-            } else if ("EXPENSE_I001".equals(api_key)) {
 
-            }
-        } catch (Exception e) {
-            ErrorUtils.AlertException(this, getString(R.string.error_msg_default_with_activity), e);
-        }
     }
-
 }

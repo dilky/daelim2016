@@ -64,10 +64,10 @@ public class CommNetwork {
     private void request() {
 
         Request request = new Request.Builder()
-                .url("http://61.84.24.77:8888/daelim2016/gateway.jsp?json_data=" + inputObject.toString())
+                .url("http://61.84.24.245:8888/daelim2016/gateway.jsp?json_data=" + inputObject.toString())
                 .build();
 
-        Log.d("dilky", "http://61.84.24.77:8888/daelim2016/gateway.jsp?json_data=" + inputObject.toString());
+        Log.d("dilky", "http://61.84.24.245:8888/daelim2016/gateway.jsp?json_data=" + inputObject.toString());
 
         client.newCall(request).enqueue(new Callback() {
             @Override
@@ -120,6 +120,16 @@ public class CommNetwork {
                             try {
                                 JSONObject outputObject = new JSONObject(response.body().string());
                                 Log.d("dilky", outputObject.toString());
+
+                                if (outputObject.has("RSLT_CD") && !"0000".equals(outputObject.getString("RSLT_CD")) ) {
+                                    String resultMsg = "오류가 발생하였습니다. 오류코드를 확인하세요.";
+                                    if (outputObject.has("RSLT_MSG") && !outputObject.isNull("RSLT_MSG") || !"".equals(outputObject.getString("RSLT_MSG"))) {
+                                        resultMsg = outputObject.getString("RSLT_MSG");
+                                    }
+                                    listener.onFailure(apiKey, outputObject.getString("RSLT_CD"), resultMsg);
+                                    return;
+                                }
+
                                 if (!outputObject.has("RESP_DATA") || outputObject.isNull("RESP_DATA")) {
                                     listener.onFailure(apiKey, "1000", "응답부가 존재하지 않습니다.");
                                     return;

@@ -51,42 +51,6 @@ public class ExpenseList extends AppCompatActivity {
             addToolBar();
 
             listView = (ListView) findViewById(R.id.expenseListView);
-            adapter = new ExpenseListAdapter(this);
-            listDatas = new ArrayList<>();
-
-            CommNetwork network = new CommNetwork(this, new onNetworkResponseListener() {
-                @Override
-                public void onSuccess(String api_key, JSONObject response) {
-
-                    try {
-                        JSONArray array = response.getJSONArray("REC");
-                        for( int i = 0; i < array.length(); i++) {
-                            JSONObject object = array.getJSONObject(i);
-                            String seq = object.getString("EXPENSE_SEQ");
-                            String paymentStoreName = object.getString("PAYMENT_STORE_NM");
-                            String statusNm = object.getString("ADMISSION_STATUS_NM");
-                            String summary = object.getString("SUMMARY");
-                            String paymentDate = object.getString("PAYMENT_DTTM");
-                            String paymentAmount = object.getString("PAYMENT_AMT");
-                            listDatas.add(new ExpenseListModel(seq, paymentStoreName, statusNm, summary, paymentDate, paymentAmount));
-                        }
-
-                        adapter.setList(listDatas);
-                        listView.setAdapter(adapter);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                @Override
-                public void onFailure(String api_key, String error_cd, String error_msg) {
-                    ErrorUtils.Alert(ExpenseList.this, error_msg);
-                }
-            });
-
-            JSONObject req_data = new JSONObject();
-            req_data.put("USER_ID", "test_user1");
-            network.requestToServer("EXPENSE_L001", req_data);
 
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
@@ -97,9 +61,64 @@ public class ExpenseList extends AppCompatActivity {
                 }
             });
 
+            loadExpenseList();
+
         } catch (Exception e) {
             ErrorUtils.AlertException(this, getString(R.string.error_msg_default_with_activity), e);
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        try {
+            loadExpenseList();
+        } catch (Exception e) {
+            ErrorUtils.AlertException(this, getString(R.string.error_msg_default_with_activity), e);
+        }
+    }
+
+    private void loadExpenseList() throws Exception {
+
+        adapter = new ExpenseListAdapter(this);
+        listDatas = new ArrayList<>();
+
+        adapter.setList(listDatas);
+        listView.setAdapter(adapter);
+
+        CommNetwork network = new CommNetwork(this, new onNetworkResponseListener() {
+            @Override
+            public void onSuccess(String api_key, JSONObject response) {
+
+                try {
+                    JSONArray array = response.getJSONArray("REC");
+                    for( int i = 0; i < array.length(); i++) {
+                        JSONObject object = array.getJSONObject(i);
+                        String seq = object.getString("EXPENSE_SEQ");
+                        String paymentStoreName = object.getString("PAYMENT_STORE_NM");
+                        String statusNm = object.getString("ADMISSION_STATUS_NM");
+                        String summary = object.getString("SUMMARY");
+                        String paymentDate = object.getString("PAYMENT_DTTM");
+                        String paymentAmount = object.getString("PAYMENT_AMT");
+                        listDatas.add(new ExpenseListModel(seq, paymentStoreName, statusNm, summary, paymentDate, paymentAmount));
+                    }
+
+                    adapter.notifyDataSetChanged();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(String api_key, String error_cd, String error_msg) {
+                ErrorUtils.Alert(ExpenseList.this, error_msg);
+            }
+        });
+
+        JSONObject req_data = new JSONObject();
+        req_data.put("USER_ID", "test_user1");
+        network.requestToServer("EXPENSE_L001", req_data);
+
     }
 
     private void addToolBar() throws Exception {
